@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificação de Localização</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: #1B54DA;
+    }
+    .botao-voltar {
+      margin-top: 2rem;
+      display: inline-block;
+      background-color: #1B54DA;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Verificando sua localização...</h1>
+  <p id="resultado"></p>
+  <a class="botao-voltar" href="index.html">Voltar para o site</a>
+  <script>
+    const cidadesPermitidas = [
+      "Santo André",
+      "São Bernardo do Campo",
+      "São Caetano do Sul",
+      "Diadema",
+      "Mauá",
+      "Ribeirão Pires",
+      "Rio Grande da Serra",
+      "Suzano",
+      "Mogi das Cruzes"
+    ];
+    function verificarLocalizacao() {
+      if (!navigator.geolocation) {
+        document.getElementById("resultado").innerText = "Geolocalização não suportada pelo navegador.";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(async function(pos) {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+        const cidade = data.address.city || data.address.town || data.address.village || "";
+        if (cidadesPermitidas.includes(cidade)) {
+          document.getElementById("resultado").innerText = `Atendemos em sua cidade: ${cidade}`;
+        } else {
+          document.getElementById("resultado").innerText = `Atualmente não atendemos em sua cidade: ${cidade}`;
+        }
+      }, function(error) {
+        document.getElementById("resultado").innerText = "Erro ao obter sua localização.";
+      });
+    }
+    verificarLocalizacao();
+  </script>
+</body>
+</html>
